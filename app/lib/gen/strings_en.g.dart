@@ -1038,6 +1038,9 @@ class TranslationsSettingsTabReceiveEn {
   /// en: 'Auto Finish'
   String get autoFinish => 'Auto Finish';
 
+  /// en: 'Auto copy to clipboard'
+  String get autoCopyToClipboard => 'Auto copy to clipboard';
+
   /// en: 'Save to folder'
   String get destination => 'Save to folder';
 
