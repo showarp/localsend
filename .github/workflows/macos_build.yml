@@ -1,0 +1,37 @@
+name: Mac Build
+on:
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: "3.38.10"
+  RUST_VERSION: "1.93.1"
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.10"
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.93.1"
+      - name: Dependencies
+        working-directory: app
+        run: flutter pub get
+      - name: Fix signing
+        working-directory: app
+        run: |
+          sed -i '' 's/DEVELOPMENT_TEAM = 3W7H4PYMCV;/DEVELOPMENT_TEAM = "";/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g' macos/Runner.xcodeproj/project.pbxproj
+      - name: Build
+        working-directory: app
+        run: flutter build macos --debug
+      - name: Package
+        run: cd app/build/macos/Build/Products/Debug && zip -r LocalSend-macOS-debug.zip LocalSend.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LocalSend-macOS-debug
+          path: app/build/macos/Build/Products/Debug/LocalSend-macOS-debug.zip
